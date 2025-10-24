@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Validación</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        .success {
+            color: green;
+            padding: 15px;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            margin-top: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Formulario de Validación</h2>
+
+    <form id="validationForm">
+        <div class="form-group">
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" placeholder="Ingrese su nombre">
+            <div class="error" id="errorNombre"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="ejemplo@correo.com">
+            <div class="error" id="errorEmail"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="edad">Edad:</label>
+            <input type="number" id="edad" name="edad" placeholder="18">
+            <div class="error" id="errorEdad"></div>
+        </div>
+
+        <button type="submit">Validar Datos</button>
+    </form>
+
+    <div class="success" id="successMessage"></div>
+</div>
+
+<script>
+    document.getElementById('validationForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        document.getElementById('errorNombre').style.display = 'none';
+        document.getElementById('errorEmail').style.display = 'none';
+        document.getElementById('errorEdad').style.display = 'none';
+        document.getElementById('successMessage').style.display = 'none';
+
+        const datos = {
+            nombre: document.getElementById('nombre').value,
+            email: document.getElementById('email').value,
+            edad: parseInt(document.getElementById('edad').value)
+        };
+
+        fetch('http://localhost:8080/validar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(datos)
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Error en la validación');
+                }
+            })
+            .then(data => {
+                document.getElementById('successMessage').innerHTML =
+                    '<strong>¡Datos validados correctamente!</strong><br>' +
+                    'Nombre: ' + data.nombre + '<br>' +
+                    'Email: ' + data.email + '<br>' +
+                    'Edad: ' + data.edad;
+                document.getElementById('successMessage').style.display = 'block';
+                document.getElementById('validationForm').reset();
+            })
+            .catch(error => {
+                document.getElementById('errorNombre').textContent = 'Error al validar los datos. Verifique la conexión con el servidor.';
+                document.getElementById('errorNombre').style.display = 'block';
+            });
+    });
+</script>
+</body>
+</html>
